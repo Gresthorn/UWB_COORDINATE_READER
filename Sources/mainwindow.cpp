@@ -142,7 +142,8 @@ void MainWindow::transmitterSlot()
         {
             *paused = false;
 
-            ui->startButton->setText("Pause/Stop");
+            ui->startButton->setStyleSheet(QString("QPushButton{background-image: url(':/main/icons/pauseIcon.png'); background-repeat: none; border: none;}"
+                                                   "QPushButton:hover{background-image: url(':/main/icons/pauseIconHover.png');}"));
             log_message("Continue transmitter thread");
 
             pausedMutex->unlock();
