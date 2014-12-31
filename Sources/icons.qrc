@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/main">
+        <file>icons/fileIcon.png</file>
+        <file>icons/pauseIcon.png</file>
+        <file>icons/startIcon.png</file>
+        <file>icons/timeIcon.png</file>
+        <file>icons/fileIconHover.png</file>
+        <file>icons/pauseIconHover.png</file>
+        <file>icons/startIcon2.png</file>
+        <file>icons/startIconHover.png</file>
+        <file>icons/timeIconHover.png</file>
+        <file>icons/radar_pic_icon.ico</file>
+    </qresource>
+</RCC>
