@@ -49,6 +49,7 @@ void MainWindow::startUserInputSlot()
     bool ok = false;
     while(!ok)
     {
+        number_of_last_records = 0;
         // getting files
         *fileList = QFileDialog::getOpenFileNames(this, tr("Select coordinate containers"), "./", tr("Text files (*.txt)"));
         Q_FOREACH(QString file, *fileList)
