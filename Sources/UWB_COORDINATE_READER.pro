@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,10 +14,14 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    server_pipe.cpp
+    server_pipe.cpp \
+    uwbpacketclass.cpp \
+    rs232.c
 
 HEADERS  += mainwindow.h \
-    server_pipe.h
+    server_pipe.h \
+    rs232.h \
+    uwbpacketclass.h
 
 FORMS    += mainwindow.ui
 

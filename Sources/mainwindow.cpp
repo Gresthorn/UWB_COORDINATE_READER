@@ -36,6 +36,19 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(startUserInputSignal()), this, SLOT(startUserInputSlot()));
     connect(ui->startButton, SIGNAL(clicked()), this, SLOT(transmitterSlot()));
 
+    QList<QSerialPortInfo> list;
+    list = QSerialPortInfo::availablePorts();
+
+    if(list.isEmpty())
+        ui->serialComboBox->addItem(tr("No COM ports availible"));
+    else
+    {
+        for(int i=0; i<list.count(); i++)
+        {
+            ui->serialComboBox->addItem(list.at(i).portName());
+        }
+    }
+
     emit this->startUserInputSignal();
 }
 
@@ -167,15 +180,46 @@ void MainWindow::transmitterSlot()
 
             if(transmitter != NULL) { transmitter->quit(); delete transmitter; }
             ui->progress->setValue(0);
-            transmitter = new server_pipe(this, time_step_interval, fileList, transmittingStatus, paused, transmittingStatusMutex, pausedMutex);
+
+
+            if(!ui->serialCheckBox->isChecked())
+            {
+                transmitter = new server_pipe(this, time_step_interval, fileList, transmittingStatus, paused, transmittingStatusMutex, pausedMutex);
+                connect(transmitter, SIGNAL(clientConnected()), this, SLOT(clientConnectedSlot()));
+                connect(transmitter, SIGNAL(clientNotResponding()), this, SLOT(clientNotRespondingSlot()));
+                connect(transmitter, SIGNAL(creatingEvents()), this, SLOT(creatingEventsSlot()));
+                connect(transmitter, SIGNAL(pipeCreationFailure()), this, SLOT(pipeCreationFailureSlot()));
+                connect(transmitter, SIGNAL(waitingForClient()), this, SLOT(waitingForClientSlot()));
+                connect(transmitter, SIGNAL(clientDisconnected()), this, SLOT(clientDisconnectedSlot()));
+            }
+            else
+            {
+                QString comport_string(ui->serialComboBox->itemText(ui->serialComboBox->currentIndex()));
+                QRegExp match_comport_number(QString("(\\d+)"));
+
+                QStringList number_list;
+                int pos = 0;
+
+                while ((pos = match_comport_number.indexIn(comport_string, pos)) != -1) {
+                    number_list << match_comport_number.cap(1);
+                    pos += match_comport_number.matchedLength();
+                }
+
+                // now in number_list there are all numbers that are in comport name, we will extract the first one and convert it to integer
+
+                int port;
+                if(number_list.isEmpty()) port = -1;
+                else port = number_list.at(0).toInt();
+
+                transmitter = new server_pipe(this, time_step_interval, fileList, transmittingStatus, paused, transmittingStatusMutex, pausedMutex, true, port-1);
+
+                connect(transmitter, SIGNAL(comportCouldNotBeOpened()), this, SLOT(comportCouldNotBeOpened()));
+
+                log_message(QString("Port with index: %1 was set up. If this index is not correct, modify port name to contain correct port number.").arg(port-1));
+            }
+
             connect(transmitter, SIGNAL(updateProgressBarSignal(int)), this, SLOT(updateProgressBar(int)));
             connect(transmitter, SIGNAL(allFilesFinished()), this, SLOT(allFilesFinishedSlot()));
-            connect(transmitter, SIGNAL(clientConnected()), this, SLOT(clientConnectedSlot()));
-            connect(transmitter, SIGNAL(clientNotResponding()), this, SLOT(clientNotRespondingSlot()));
-            connect(transmitter, SIGNAL(creatingEvents()), this, SLOT(creatingEventsSlot()));
-            connect(transmitter, SIGNAL(pipeCreationFailure()), this, SLOT(pipeCreationFailureSlot()));
-            connect(transmitter, SIGNAL(waitingForClient()), this, SLOT(waitingForClientSlot()));
-            connect(transmitter, SIGNAL(clientDisconnected()), this, SLOT(clientDisconnectedSlot()));
 
             transmitter->start();
         }
@@ -198,7 +242,8 @@ void MainWindow::transmitterSlot()
                 return;
             }
 
-            transmitter->terminate();
+            transmitter->closeRS232port();
+            transmitter->terminate();   
 
             log_message("Terminating transmitter thread");
             *transmittingStatus = false;
@@ -224,6 +269,7 @@ void MainWindow::updateProgressBar(int counter)
 
 void MainWindow::allFilesFinishedSlot()
 {
+    transmitter->closeRS232port();
     transmitter->quit();
     log_message("All data were sent. No more data in files. Closing thread.");
 
@@ -279,7 +325,28 @@ void MainWindow::clientNotRespondingSlot(void)
 void MainWindow::clientDisconnectedSlot()
 {
     transmitter->terminate();
+
+    qDebug() << "Closing";
+
     log_message("Client is disconnected. Terminating transmitter thread.");
+
+    ui->startButton->setStyleSheet(QString("QPushButton{background-image: url(':/main/icons/startIcon.png'); background-repeat: none; border: none;}"
+                                           "QPushButton:hover{background-image: url(':/main/icons/startIconHover.png');}"));
+    ui->timeStepIntervalButton->setDisabled(false);
+    ui->newFilesButton->setDisabled(false);
+
+    delete transmitter;
+    transmitter = NULL;
+
+    *transmittingStatus = false;
+    *paused = false;
+}
+
+void MainWindow::comportCouldNotBeOpened()
+{
+
+    transmitter->terminate();
+    log_message("The com port could not be opened. No transmitting is running.");
 
     ui->startButton->setStyleSheet(QString("QPushButton{background-image: url(':/main/icons/startIcon.png'); background-repeat: none; border: none;}"
                                            "QPushButton:hover{background-image: url(':/main/icons/startIconHover.png');}"));

@@ -54,7 +54,7 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0" colspan="5">
+    <item row="1" column="0" colspan="7">
      <widget class="QTextEdit" name="logger"/>
     </item>
     <item row="0" column="2">
@@ -67,6 +67,16 @@
       </property>
       <property name="text">
        <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="6">
+     <widget class="QComboBox" name="serialComboBox"/>
+    </item>
+    <item row="0" column="5">
+     <widget class="QCheckBox" name="serialCheckBox">
+      <property name="text">
+       <string>Use serial</string>
       </property>
      </widget>
     </item>

@@ -9,8 +9,12 @@
 #include <QInputDialog>
 #include <QThread>
 #include <QMutex>
+#include <QRegExp>
+#include <QtSerialPort/QSerialPortInfo>
 
 #include "server_pipe.h"
+#include "uwbpacketclass.h"
+#include "rs232.h"
 
 namespace Ui {
 class MainWindow;
@@ -29,6 +33,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+    int port_number;
 
     int number_of_last_records;
     double time_step_interval;
@@ -65,6 +71,9 @@ public slots:
     void clientNotRespondingSlot(void);
     void clientDisconnectedSlot(void);
 
+    void comportCouldNotBeOpened(void);
+
 };
+
 
 #endif // MAINWINDOW_H
