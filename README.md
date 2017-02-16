@@ -40,6 +40,7 @@ Packets can therefore contain random number of [x, y] coordinates. Exact packet 
     - each target has assigned [x, y] position, position of [x, y] pair for specific target does not change between the packets from single sensor
     - current implementation of generator is even exporting each target coordinate pairs for each sensor at the same position in packet (e.g. target X position will occure as N-th [x, y] pair in each packet for every sensor)
     - The functionality may be enhanced by messing this order up in later versions to test the association algorithms properly
+  - 16 bits CRC - CRC plynomial used is P_16 0xA001
   - IMPORTANT: Each 4 bits of transmitted data are extracted and converted to hexadecimal character according to numeric meaning of those 4 bits. EXAMPLE:
     - To transmit number 12.45, this is multiplied by 100 -> 12.45 x 100 = 1245
     - 1245 on 12 bits is 010011011101 (first bit is sign)
