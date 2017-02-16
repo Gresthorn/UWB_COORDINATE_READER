@@ -30,11 +30,12 @@ public:
 
     // writing into logger function
     void log_message(QString message);
-
+    bool isValid() { return initValid; }
 private:
     Ui::MainWindow *ui;
 
     int port_number;
+    bool initValid;
 
     int number_of_last_records;
     double time_step_interval;
@@ -55,8 +56,9 @@ private:
 signals:
     // signal to start user input
     void startUserInputSignal(void);
+    void quit(void);
 public slots:
-    void startUserInputSlot(void);
+    bool startUserInputSlot(void);
     void timeStepIntervalSlot(void);
     void transmitterSlot(void);
     void updateProgressBar(int);

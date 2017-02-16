@@ -54,9 +54,6 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0" colspan="7">
-     <widget class="QTextEdit" name="logger"/>
-    </item>
     <item row="0" column="2">
      <widget class="QPushButton" name="newFilesButton">
       <property name="minimumSize">
@@ -76,9 +73,32 @@
     <item row="0" column="5">
      <widget class="QCheckBox" name="serialCheckBox">
       <property name="text">
-       <string>Use serial</string>
+       <string>Use serial:</string>
       </property>
      </widget>
+    </item>
+    <item row="0" column="8">
+     <widget class="QComboBox" name="baudRate"/>
+    </item>
+    <item row="0" column="7">
+     <widget class="QLabel" name="baudrateLabel">
+      <property name="text">
+       <string>Baudrate:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="9">
+     <widget class="QLabel" name="modeLabel">
+      <property name="text">
+       <string>Mode:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="10">
+     <widget class="QComboBox" name="serialMode"/>
+    </item>
+    <item row="1" column="0" colspan="11">
+     <widget class="QTextEdit" name="logger"/>
     </item>
    </layout>
   </widget>

@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->newFilesButton, SIGNAL(clicked()), this, SLOT(startUserInputSlot()));
     connect(this, SIGNAL(startUserInputSignal()), this, SLOT(startUserInputSlot()));
     connect(ui->startButton, SIGNAL(clicked()), this, SLOT(transmitterSlot()));
+    connect(this, SIGNAL(quit()), this, SLOT(close()));
 
     QList<QSerialPortInfo> list;
     list = QSerialPortInfo::availablePorts();
@@ -49,7 +50,17 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     }
 
-    emit this->startUserInputSignal();
+    QStringList baudrates = (QStringList() << "300" << "600" << "1200" << "2400" << "4800" << "9600" << "19200" << "38400"
+                                           << "57600" << "115200" << "128000" << "256000" << "500000" << "1000000" );
+    ui->baudRate->addItems(baudrates);
+    ui->baudRate->setCurrentIndex(5);
+
+    QStringList modes = (QStringList() << "8N1" << "8O1" << "8E1" << "8N2" << "8O2" << "8E2" << "7N1" << "7O1" << "7E1" << "7N2"
+                                       << "7E2" << "6N1" << "6O1" << "6E1" << "6N2" << "6O2" << "6E2" << "5N1" << "5O1" << "5E1"
+                                       << "5N2" << "5O2" << "5E2");
+    ui->serialMode->addItems(modes);
+
+    initValid = this->startUserInputSlot();
 }
 
 MainWindow::~MainWindow()
@@ -57,7 +68,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::startUserInputSlot()
+bool MainWindow::startUserInputSlot()
 {
     bool ok = false;
     while(!ok)
@@ -65,6 +76,10 @@ void MainWindow::startUserInputSlot()
         number_of_last_records = 0;
         // getting files
         *fileList = QFileDialog::getOpenFileNames(this, tr("Select coordinate containers"), "./", tr("Text files (*.txt)"));
+
+        // no file selected, closing application
+        if(fileList->empty()) break;
+
         Q_FOREACH(QString file, *fileList)
         {
             log_message(QString("Analyzing file: ").append(file));
@@ -82,6 +97,8 @@ void MainWindow::startUserInputSlot()
             }
         }
     }
+
+    return ok;
 }
 
 void MainWindow::timeStepIntervalSlot()
@@ -211,7 +228,14 @@ void MainWindow::transmitterSlot()
                 if(number_list.isEmpty()) port = -1;
                 else port = number_list.at(0).toInt();
 
-                transmitter = new server_pipe(this, time_step_interval, fileList, transmittingStatus, paused, transmittingStatusMutex, pausedMutex, true, port-1);
+                bool to_int_ok = false;
+                unsigned int baud_rate = ui->baudRate->itemText(ui->baudRate->currentIndex()).toUInt(&to_int_ok);
+                if(!to_int_ok) baud_rate = 9600; //default baudrate
+
+                QString serial_mode = ui->serialMode->itemText(ui->serialMode->currentIndex());
+
+                transmitter = new server_pipe(this, time_step_interval, fileList, transmittingStatus, paused,
+                                              transmittingStatusMutex, pausedMutex, true, port-1, baud_rate, serial_mode.toStdString().c_str());
 
                 connect(transmitter, SIGNAL(comportCouldNotBeOpened()), this, SLOT(comportCouldNotBeOpened()));
 

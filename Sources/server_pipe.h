@@ -20,7 +20,9 @@ class server_pipe : public QThread
     Q_OBJECT
 
 public:
-    server_pipe(class MainWindow * parent, double time_break, QStringList * list, bool * statusT, bool * pausedT, QMutex * statusMutexT, QMutex * pausedMutexT, bool comport_enabled = false, int port_number = 0);
+    server_pipe(class MainWindow * parent, double time_break, QStringList * list, bool * statusT,
+                bool * pausedT, QMutex * statusMutexT, QMutex * pausedMutexT, bool comport_enabled = false,
+                int port_number = 0, unsigned int baudrate = 9600, const char *mode = NULL);
     int closeRS232port(void);
     ~server_pipe();
 
@@ -35,6 +37,8 @@ private:
     bool * paused;
 
     double timeInterval;
+    unsigned int RS232baudrate;
+    char RS232mode[4];
     QTimer * timer;
 
     QMutex * statusMutex;

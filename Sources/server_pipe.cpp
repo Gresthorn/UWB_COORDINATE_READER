@@ -1,6 +1,8 @@
 #include "server_pipe.h"
 
-server_pipe::server_pipe(class MainWindow * parent, double time_break, QStringList * list, bool * statusT, bool * pausedT, QMutex * statusMutexT, QMutex * pausedMutexT, bool comport_enabled, int port_number)
+server_pipe::server_pipe(class MainWindow * parent, double time_break, QStringList * list, bool * statusT,
+                         bool * pausedT, QMutex * statusMutexT, QMutex * pausedMutexT, bool comport_enabled,
+                         int port_number, unsigned int baudrate, const char * mode)
     : QThread(parent)
 {
     status = statusT;
@@ -11,6 +13,10 @@ server_pipe::server_pipe(class MainWindow * parent, double time_break, QStringLi
     pausedMutex = pausedMutexT;
     RS232Mutex = new QMutex;
     parentWindow = parent;
+    RS232baudrate = baudrate;
+    if(mode==NULL) { RS232mode[0] = '8'; RS232mode[1] = 'N'; RS232mode[2] = '1'; RS232mode[3] = '\0'; }
+    else if(strlen(mode)!=3) { RS232mode[0] = '8'; RS232mode[1] = 'N'; RS232mode[2] = '1'; RS232mode[3] = '\0'; }
+    else { RS232mode[0] = mode[0]; RS232mode[1] = mode[1]; RS232mode[2] = mode[2]; RS232mode[3] = '\0'; }
 
     comport = comport_enabled;
     port = port_number;
@@ -97,7 +103,7 @@ void server_pipe::run()
     {
         RS232Mutex->lock();
 
-        if(RS232_OpenComport(port, 9600, "8N1") > 0)
+        if(RS232_OpenComport(port, RS232baudrate, RS232mode) > 0)
         {
              RS232Mutex->unlock();
              emit this->comportCouldNotBeOpened();
