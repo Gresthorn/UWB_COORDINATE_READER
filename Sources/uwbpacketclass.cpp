@@ -1,5 +1,4 @@
 #include "uwbpacketclass.h"
-
 /*****************************************************************************************************************/
 
 uwbPacketTx::uwbPacketTx(int radarId, int port) : endingChar('$'), rounder(100.0)
@@ -74,7 +73,7 @@ void uwbPacketTx::generatePacket(float *data, int data_count)
     std::bitset<16> crc_constant(15); // constant for extraction 4 bits from 16 bit long bitstream
     for(int j=12; j>=0; j=j-4)
     {
-        ch = makeCorrection(((b_crc&crc_constant)>>j).to_ulong());
+        ch = makeCorrection(((b_crc>>j)&crc_constant).to_ulong());
         packet[packetLength++] = ch;
     }
 }

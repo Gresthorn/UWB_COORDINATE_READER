@@ -164,8 +164,8 @@ void server_pipe::run()
                     float * temp_array = new float[dataCount];
                     for(int i=1; i<=(dataCount/2); i++)
                     {
-                        temp_array[i-1] = list.at(i*4-1).toFloat();
-                        temp_array[i] = list.at(i*4).toFloat();
+                        temp_array[i*2-2] = list.at(i*4-1).toFloat();
+                        temp_array[i*2-1] = list.at(i*4).toFloat();
                     }
 
                     packetHandlerList->at(index)->generatePacket(temp_array, dataCount);
